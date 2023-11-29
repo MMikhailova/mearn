@@ -1,15 +1,36 @@
-import chalk from 'chalk';
+import { format } from'date-fns'
+import { v4 as uuid } from 'uuid'
+import fs from 'fs'
+import path from 'path'
+const fsPromises = fs.promises;
 
-const logger = (req, res, next) => {
-    const timestamp = new Date().toUTCString();
-    console.log(
-        `${chalk.blue(req.url)} --------- ${chalk.yellow(
-            req.method
-        )} --------- ${chalk.green(res.statusCode)} -------- ${chalk.bold(
-            timestamp
-        )}`
-    );
-    next();
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+
+const logEvents = async (message, logFileName) => {
+    const dateTime = format(new Date(), 'yyyyMMdd\tHH:mm:ss');
+    const logItem = `${dateTime}\t${uuid()}\t${message}\n`;
+
+    try {
+        if (!fs.existsSync(path.join(__dirname, '..', 'logs'))) {
+            await fsPromises.mkdir(path.join(__dirname, '..', 'logs'));
+        }
+        await fsPromises.appendFile(
+            path.join(__dirname, '..', 'logs', logFileName),
+            logItem
+        );
+    } catch (err) {
+        console.log(err);
+    }
 };
 
-export default logger;
+const logger = (req, res, next) => {
+    logEvents(`${req.method}\t${req.url}\t${req.headers.origin}`, 'reqLog.log');
+    console.log(`${req.method} ${req.path}`);
+    next();
+};
+const loggers = {
+    logger,
+    logEvents
+}
+export default loggers

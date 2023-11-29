@@ -1,45 +1,65 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import corsOptions from './config/corsOptions.js';
+import router from './routes/root.js';
+import connectToDB from './config/dbConn.js';
+import loggers from './middleware/logger.js';
+import path from 'path';
+import errorHandler from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
-
-import connectToDB from './config/db.js';
-
-import logger from './middleware/logger.js';
-
-dotenv.config();
-connectToDB();
-const PORT = process.env.PORT || 5009;
-
+import mongoose from 'mongoose';
+import userRoutes from './routes/userRoutes.js';
+import noteRoutes from './routes/noteRoutes.js'
+const {logger,logEvents}=loggers
 const app = express();
+dotenv.config();
+const PORT = process.env.PORT || 3500;
+connectToDB()
+//custom middleware that logs all requests and its data
+app.use(logger);
+//built-in middleware
+app.use(express.json());
+//third-party middleware
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
+//define a middleware for defining public folder
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 // cors
-app.use(
-    cors({
-        origin: 'http://localhost:5173',
-        credentials: true
-    })
-);
-
-app.use(logger);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cors(corsOptions));
 
 // routes
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).json({ message: 'Internal Server Error' });
-});
-
+app.use('/', router);
+app.use('/users', userRoutes);
+app.use('/notes', noteRoutes);
 // 404 Not Found handling
-app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Page is not found' });
+app.all('*', (req, res) => {
+    if (req.accepts('html')) {
+        res.sendFile(path.join(__dirname, 'views', '404.html'));
+    } else if (req.accepts('json')) {
+        res.json({ message: '404 not Found' });
+    } else {
+        req.type('txt').send('404 Not Found');
+    }
+});
+app.use(errorHandler);
+//  attach a one-time listener for the 'open' event, which is emitted when the connection to MongoDB is successfully opened.
+mongoose.connection.once('open', () => {
+    app.listen(PORT, () => {
+        console.log(`Connected to Mongo DB`);
+        console.log(`Server is up and running on port: ${PORT}`)
+    })
+})
+
+mongoose.connection.on('error', (err) => {
+    console.log(err);
+    logEvents(
+        `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,
+        'mongoErrLog.log'
+    );
 });
 
-// listen
-const server = app.listen(PORT, () => {
-    console.log(`Server is up and running on port: ${PORT}`);
-});
