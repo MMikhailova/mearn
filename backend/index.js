@@ -11,6 +11,8 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
 import noteRoutes from './routes/noteRoutes.js'
+import authRoutes from './routes/authRoutes.js';
+
 const {logger,logEvents}=loggers
 const app = express();
 dotenv.config();
@@ -34,6 +36,7 @@ app.use(cors(corsOptions));
 
 // routes
 app.use('/', router);
+app.use('/auth',authRoutes)
 app.use('/users', userRoutes);
 app.use('/notes', noteRoutes);
 // 404 Not Found handling
