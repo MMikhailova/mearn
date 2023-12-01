@@ -1,14 +1,12 @@
 import User from '../models/User.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import asyncHandler from 'express-async-handler'
-
 
 const authController = {
     // @desc Login
     // @route POST /auth
     // @access Public
-    login: asyncHandler(async (req, res) => {
+    login: async (req, res) => {
         const { username, password } = req.body;
 
         if (!username || !password) {
@@ -52,11 +50,11 @@ const authController = {
 
         // Send accessToken containing username and roles
         res.json({ accessToken });
-    }),
+    },
     // @desc Refresh
     // @route GET /auth/refresh
     // @access Public - because access token has expired
-    refresh: (req, res) => (req, res) => {
+    refresh: (req, res) => {
         const cookies = req.cookies;
 
         if (!cookies?.jwt)
@@ -67,7 +65,7 @@ const authController = {
         jwt.verify(
             refreshToken,
             process.env.REFRESH_TOKEN_SECRET,
-            asyncHandler(async (err, decoded) => {
+            async (err, decoded) => {
                 if (err) return res.status(403).json({ message: 'Forbidden' });
 
                 const foundUser = await User.findOne({
@@ -89,7 +87,7 @@ const authController = {
                 );
 
                 res.json({ accessToken });
-            })
+            }
         );
     },
     // @desc Logout

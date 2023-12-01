@@ -3,14 +3,17 @@ import { useUpdateNoteMutation, useDeleteNoteMutation } from './notesApiSlice';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import useAuth from '../../hooks/useAuth.js';
 
 const EditNoteForm = ({ note, users }) => {
+    const { isManager, isAdmin } = useAuth();
+
     const [updateNote, { isLoading, isSuccess, isError, error }] =
         useUpdateNoteMutation();
 
     const [
         deleteNote,
-        { isSuccess: isDelSuccess, isError: isDelError, error: delError }
+        { isSuccess: isDelSuccess, isError: isDelError, error: delerror }
     ] = useDeleteNoteMutation();
 
     const navigate = useNavigate();
@@ -81,8 +84,21 @@ const EditNoteForm = ({ note, users }) => {
     const errClass = isError || isDelError ? 'errmsg' : 'offscreen';
     const validTitleClass = !title ? 'form__input--incomplete' : '';
     const validTextClass = !text ? 'form__input--incomplete' : '';
-console.log(error)
-    const errContent = (error?.data?.message || delError?.data?.message) ?? '';
+
+    const errContent = (error?.data?.message || delerror?.data?.message) ?? '';
+
+    let deleteButton = null;
+    if (isManager || isAdmin) {
+        deleteButton = (
+            <button
+                className="icon-button"
+                title="Delete"
+                onClick={onDeleteNoteClicked}
+            >
+                <FontAwesomeIcon icon={faTrashCan} />
+            </button>
+        );
+    }
 
     const content = (
         <>
@@ -100,13 +116,7 @@ console.log(error)
                         >
                             <FontAwesomeIcon icon={faSave} />
                         </button>
-                        <button
-                            className="icon-button"
-                            title="Delete"
-                            onClick={onDeleteNoteClicked}
-                        >
-                            <FontAwesomeIcon icon={faTrashCan} />
-                        </button>
+                        {deleteButton}
                     </div>
                 </div>
                 <label className="form__label" htmlFor="note-title">

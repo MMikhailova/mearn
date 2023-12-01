@@ -1,13 +1,13 @@
 import User from '../models/User.js';
 import Note from '../models/Note.js';
-import asyncHandler from 'express-async-handler';
+// import asyncHandler from 'express-async-handler';
 
 
 const notesController = {
     // @desc Get all notes
     // @route GET /notes
     // @access Private
-    getAllNotes: asyncHandler(async (req, res) => {
+    getAllNotes: async (req, res) => {
         // Get all notes from MongoDB
         const notes = await Note.find().lean();
 
@@ -27,12 +27,11 @@ const notesController = {
         );
 
         res.json(notesWithUser);
-    }),
-
+    },
     // @desc Create new note
     // @route POST /notes
     // @access Private
-    createNewNote: asyncHandler(async (req, res) => {
+    createNewNote: async (req, res) => {
         const { user, title, text } = req.body;
 
         // Confirm data
@@ -41,7 +40,10 @@ const notesController = {
         }
 
         // Check for duplicate title
-        const duplicate = await Note.findOne({ title }).lean().exec();
+        const duplicate = await Note.findOne({ title })
+            .collation({ locale: 'en', strength: 2 })
+            .lean()
+            .exec();
 
         if (duplicate) {
             return res.status(409).json({ message: 'Duplicate note title' });
@@ -58,11 +60,11 @@ const notesController = {
                 .status(400)
                 .json({ message: 'Invalid note data received' });
         }
-    }),
+    },
     // @desc Update a note
     // @route PATCH /notes
     // @access Private
-    updateNote: asyncHandler(async (req, res) => {
+    updateNote: async (req, res) => {
         const { id, user, title, text, completed } = req.body;
 
         // Confirm data
@@ -78,7 +80,10 @@ const notesController = {
         }
 
         // Check for duplicate title
-        const duplicate = await Note.findOne({ title }).lean().exec();
+        const duplicate = await Note.findOne({ title })
+            .collation({ locale: 'en', strength: 2 })
+            .lean()
+            .exec();
 
         // Allow renaming of the original note
         if (duplicate && duplicate?._id.toString() !== id) {
@@ -93,12 +98,12 @@ const notesController = {
         const updatedNote = await note.save();
 
         res.json(`'${updatedNote.title}' updated`);
-    }),
+    },
 
     // @desc Delete a note
     // @route DELETE /notes
     // @access Private
-    deleteNote: asyncHandler(async (req, res) => {
+    deleteNote: async (req, res) => {
         const { id } = req.body;
 
         // Confirm data
@@ -118,7 +123,7 @@ const notesController = {
         const reply = `Note '${result.title}' with ID ${result._id} deleted`;
 
         res.json(reply);
-    })
+    }
 };
 
 export default notesController;

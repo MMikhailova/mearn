@@ -1,4 +1,6 @@
+
 import dotenv from 'dotenv';
+import 'express-async-errors';
 import express from 'express';
 const app = express();
 import cors from 'cors';
@@ -13,6 +15,7 @@ import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
 import noteRoutes from './routes/noteRoutes.js'
 import authRoutes from './routes/authRoutes.js';
+
 const {logger,logEvents}=loggers
 
 dotenv.config();

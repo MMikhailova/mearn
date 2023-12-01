@@ -2,13 +2,13 @@ import { Outlet, Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { useRefreshMutation } from './authApiSlice.js';
 import usePersist from '../../hooks/usePersist.js';
-import { selectCurrentToken } from './authSlice.js';
 import { useSelector } from 'react-redux';
+import { selectCurrentToken } from './authSlice.js';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 const PersistLogin = () => {
     const [persist] = usePersist();
     const token = useSelector(selectCurrentToken);
-    console.log(token);
     const effectRan = useRef(false);
 
     const [trueSuccess, setTrueSuccess] = useState(false);
@@ -26,10 +26,9 @@ const PersistLogin = () => {
             const verifyRefreshToken = async () => {
                 console.log('verifying refresh token');
                 try {
-                    const response =
+                    //const response =
                     await refresh();
-                    const { accessToken } = response.data
-                    console.log(accessToken);
+                    //const { accessToken } = response.data
                     setTrueSuccess(true);
                 } catch (err) {
                     console.error(err);
@@ -52,13 +51,13 @@ const PersistLogin = () => {
     } else if (isLoading) {
         //persist: yes, token: no
         console.log('loading');
-        content = <p>Loading...</p>;
+           content = <PulseLoader color={'#FFF'} />;
     } else if (isError) {
         //persist: yes, token: no
         console.log('error');
         content = (
             <p className="errmsg">
-                {error.data?.message}
+                {`${error?.data?.message} - `}
                 <Link to="/login">Please login again</Link>.
             </p>
         );
