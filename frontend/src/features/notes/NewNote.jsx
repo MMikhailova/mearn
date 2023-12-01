@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { selectAllUsers } from '../users/usersApiSlice';
+import { selectAllUsers } from '../users/usersApiSlice.js';
 import NewNoteForm from './NewNoteForm';
 
 const NewNote = () => {

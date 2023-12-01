@@ -4,6 +4,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from './authSlice.js';
 import { useLoginMutation } from './authApiSlice.js';
+import usePersist from '../../hooks/usePersist.js';
+
+
 
 const Login = () => {
     const userRef = useRef();
@@ -11,6 +14,7 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errMsg, setErrMsg] = useState('');
+    const [persist, setPersist] = usePersist();
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -52,6 +56,7 @@ const Login = () => {
 
     const handleUserInput = (e) => setUsername(e.target.value);
     const handlePwdInput = (e) => setPassword(e.target.value);
+    const handleToggle = () => setPersist((prev) => !prev);
 
     const errClass = errMsg ? 'errmsg' : 'offscreen';
 
@@ -90,6 +95,17 @@ const Login = () => {
                         required
                     />
                     <button className="form__submit-button">Sign In</button>
+
+                    <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggle}
+                            checked={persist}
+                        />
+                        Trust This Device
+                    </label>
                 </form>
             </main>
             <footer>

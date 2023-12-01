@@ -4,7 +4,7 @@ import asyncHandler from "express-async-handler"
 import bcrypt from 'bcryptjs'
 
 
-const userControllers = {
+const usersController = {
     //@desc Get all users
     //@route GET /users
     //@access Private
@@ -129,4 +129,4 @@ const userControllers = {
 }
 
 
-export default userControllers;
+export default usersController;

@@ -1,14 +1,13 @@
 import express from 'express';
-import noteControllers from '../controllers/notesControllers.js';
+const router = express.Router();
+import notesController from '../controllers/notesControllers.js';
 import verifyJWT from '../middleware/verifyJWT.js'
 
-const { getAllNotes, createNewNote, updateNote, deleteNote } = noteControllers
-const router = express.Router();
-router.use(verifyJWT);
+// router.use(verifyJWT);
 router
     .route('/')
-    .get(getAllNotes)
-    .patch(createNewNote)
-    .put(updateNote)
-    .delete(deleteNote);
+    .get(verifyJWT, notesController.getAllNotes)
+    .post(verifyJWT, notesController.createNewNote)
+    .patch(verifyJWT, notesController.updateNote)
+    .delete(verifyJWT,notesController.deleteNote);
 export default router;

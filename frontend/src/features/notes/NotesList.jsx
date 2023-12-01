@@ -1,6 +1,6 @@
-import { useGetNotesQuery } from './notesApiSlice';
-import Note from './Note';
 
+import { useGetNotesQuery } from './notesApiSlice.js';
+import Note from './Note.jsx';
 const NotesList = () => {
     const {
         data: notes,
@@ -8,7 +8,7 @@ const NotesList = () => {
         isSuccess,
         isError,
         error
-    } = useGetNotesQuery(undefined, {
+    } = useGetNotesQuery('notesList', {
         pollingInterval: 15000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true

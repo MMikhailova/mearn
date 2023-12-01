@@ -26,12 +26,18 @@
 }
 
 /* || UTILITY CLASSES */
+/* || UTILITY CLASSES */
 .errmsg {
   display: inline-block;
   background-color: var(--TABLE-BGCOLOR);
   color: var(--ERROR);
   padding: 0.25em;
   margin-bottom: 0.5em;
+}
+
+.errmsg a:any-link {
+  color: var(--ERROR);
+  text-decoration: underline;
 }
 
 .nowrap {
@@ -57,7 +63,6 @@
 .icon-button[disabled] {
   visibility: hidden;
 }
-
 /* || GENERAL STYLES */
 
 body {

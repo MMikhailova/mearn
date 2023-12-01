@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+const app = express();
 import cors from 'cors';
 import corsOptions from './config/corsOptions.js';
 import router from './routes/root.js';
@@ -12,14 +13,15 @@ import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
 import noteRoutes from './routes/noteRoutes.js'
 import authRoutes from './routes/authRoutes.js';
-
 const {logger,logEvents}=loggers
-const app = express();
+
 dotenv.config();
 const PORT = process.env.PORT || 3500;
 connectToDB()
 //custom middleware that logs all requests and its data
 app.use(logger);
+// cors
+app.use(cors(corsOptions));
 //built-in middleware
 app.use(express.json());
 //third-party middleware
@@ -31,8 +33,7 @@ const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// cors
-app.use(cors(corsOptions));
+
 
 // routes
 app.use('/', router);
@@ -51,9 +52,10 @@ app.all('*', (req, res) => {
 });
 app.use(errorHandler);
 //  attach a one-time listener for the 'open' event, which is emitted when the connection to MongoDB is successfully opened.
+   
 mongoose.connection.once('open', () => {
+    console.log('Connected to MongoDB');
     app.listen(PORT, () => {
-        console.log(`Connected to Mongo DB`);
         console.log(`Server is up and running on port: ${PORT}`)
     })
 })
